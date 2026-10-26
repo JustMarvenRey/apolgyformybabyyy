@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>For you</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff3ee;--ink:#2a1f2d;--soft:#7a6670;--card:#ffffff;--rose:#e8456b;--rose-ink:#fff;--line:#f0d5d3;--gold:#f5b942;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#18132b;--ink:#fdeee8;--soft:#b9a9bd;--card:#241d3d;--rose:#ff6b8b;--rose-ink:#2a0f1a;--line:#3a3060;--gold:#ffd27a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#18132b;--ink:#fdeee8;--soft:#b9a9bd;--card:#241d3d;--rose:#ff6b8b;--rose-ink:#2a0f1a;--line:#3a3060;--gold:#ffd27a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 17px/1.55 "DM Sans",system-ui,sans-serif;overflow-x:hidden}
+main{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:28px 20px;position:relative}
+.stage{width:100%;max-width:460px;text-align:center}
+h1{font:700 clamp(40px,11vw,58px)/1.05 "Caveat",cursive,serif;margin:0 0 14px;letter-spacing:.01em}
+p{margin:0 0 22px;color:var(--soft)}
+.step{display:none;animation:in .35s ease both}
+.step.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+button{font:700 17px "DM Sans",sans-serif;border:0;border-radius:999px;padding:14px 26px;cursor:pointer;background:var(--rose);color:var(--rose-ink);transition:transform .15s}
+button:active{transform:scale(.96)}
+button.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;align-items:center}
+.card{display:block;width:100%;text-align:left;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:12px;font-weight:500}
+.card .t{font:700 26px/1.1 "Caveat",cursive;color:var(--rose)}
+.card .b{display:none;margin-top:8px;font-weight:400;color:var(--ink)}
+.card.open .b{display:block}
+.card.open{border-color:var(--rose)}
+.card .hint{color:var(--soft);font-weight:400;font-size:15px}
+.card.open .hint{display:none}
+.promise{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px;font-weight:500}
+.promise .box{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:16px;color:transparent}
+.promise.done{border-color:var(--rose)}
+.promise.done .box{background:var(--rose);border-color:var(--rose);color:var(--rose-ink)}
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:26px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--rose)}
+#yes{transition:transform .2s}
+#no{transition:transform .25s,opacity .25s}
+#heart{font-size:64px;line-height:1;margin-bottom:10px}
+.fx{position:fixed;top:-30px;pointer-events:none;font-size:26px;animation:fall linear forwards;z-index:9}
+@keyframes fall{to{transform:translateY(115vh) rotate(360deg);opacity:.9}}
+.sig{font:700 30px "Caveat",cursive;color:var(--rose);margin-top:8px}
+@media (prefers-reduced-motion:reduce){.step{animation:none}.fx{display:none}}
+</style>
+</head>
+<body>
+<main><div class="stage">
+  <div class="dots" id="dots" aria-hidden="true"></div>
+
+  <section class="step" id="s0">
+    <div id="heart">💌</div>
+    <h1 id="hi"></h1>
+    <p>I made you something. It takes about a minute.</p>
+    <button data-next>Open it</button>
+  </section>
+
+  <section class="step" id="s1">
+    <h1>Are you still mad at me?</h1>
+    <p id="madHint">Be honest. I can take it.</p>
+    <div class="row" id="madRow">
+      <button class="ghost" data-mad="Yes, you hurt me.">Yes</button>
+      <button class="ghost" data-mad="A little. Okay, that’s fair.">A little</button>
+      <button class="ghost" id="nope" data-mad="Really? Good. But I’m still going to say this.">No</button>
+    </div>
+  </section>
+
+  <section class="step" id="s2">
+    <h1 id="madReply">Okay. Let me say this.</h1>
+    <p>Tap each one.</p>
+    <button class="card" data-card><span class="t">What I got wrong</span><span class="hint"> Tap to read</span><span class="b" id="c1"></span></button>
+    <button class="card" data-card><span class="t">What I understand now</span><span class="hint"> Tap to read</span><span class="b" id="c2"></span></button>
+    <button class="card" data-card><span class="t">What I’m going to do</span><span class="hint"> Tap to read</span><span class="b" id="c3"></span></button>
+    <button id="to3" style="display:none;margin-top:8px" data-next>Keep going</button>
+  </section>
+
+  <section class="step" id="s3">
+    <h1>My promises</h1>
+    <p>Tap each one if you accept it.</p>
+    <div id="promises"></div>
+    <button id="to4" style="display:none;margin-top:8px" data-next>One last thing</button>
+  </section>
+
+  <section class="step" id="s4">
+    <h1 id="ask"></h1>
+    <p id="askSub">I mean it with my whole heart.</p>
+    <div class="row" style="min-height:120px">
+      <button id="yes">Yes, I forgive you</button>
+      <button id="no" class="ghost">No</button>
+    </div>
+  </section>
+
+  <section class="step" id="s5">
+    <div id="heart2" style="font-size:64px;line-height:1">🥹</div>
+    <h1>Thank you.</h1>
+    <p id="final"></p>
+    <div class="sig" id="sig"></div>
+  </section>
+</div></main>
+
+<script>
+// ✏️ EDIT THESE: make it sound like you.
+var C = {
+  her: "Baby",
+  me: "Me",
+  wrong: "I know that i made you jealous baby because i interacted with another girl, and i understand why that hurt you. even if i didn't have any bad intentions, i understand that my actions made you feel uncomfortable and may have made you question things baby. I'm sorry for making you feel that way baby. I should have been more mindful of your feelings and how my actions could affect you, i know that I made another mistake but I never want you to feel like you have to compete with anyone for my attention or love okay? you're my one and only baby.",
+  understand: "I understand that even if something seems harmless to me, it can still hurt you and i be more mindful of your feelings... i didnt mean to hurt you like that baby. i want you to feel loved, respected, and reassured by me baby.",
+  doBetter: "I'm going to be more careful with how i interact with other girls and be more mindful of your feelings baby. I do my best to reassure you through my words and actions, not just when you're galit sakin but everyday if I have to. I want to earn your trust and show you that you're the one i choose. I'm sorry, baby ah. i want to become a better boyfriend for you, not just through promises, but through consistent actions and i do my best to do that.",
+  promises: [
+    "I’ll remind you that you’re my person and that i choose you, every single day.",
+    "I’ll be more mindful of my actions and how they affect you",
+    "I’ll take responsibility for my mistakes and do my best to learn from them.",
+    "I’ll make sure you feel loved, valued, and appreciated, even on difficult days."
+  ],
+  final: "I’m lucky you care this much. I’m going to show you every day that you chose right."
+};
+
+var $ = function(s){return document.querySelector(s)}, $$ = function(s){return document.querySelectorAll(s)};
+var cur = 0, total = 6;
+$("#hi").textContent = "Hey " + C.her + ".";
+$("#ask").textContent = C.her + ", will you forgive me?";
+$("#c1").textContent = C.wrong; $("#c2").textContent = C.understand; $("#c3").textContent = C.doBetter;
+$("#final").textContent = C.final; $("#sig").textContent = "Always yours, " + C.me;
+
+var dots = $("#dots");
+for (var i = 0; i < total; i++) dots.appendChild(document.createElement("i"));
+
+function go(n){
+  cur = n;
+  $$(".step").forEach(function(s,i){ s.classList.toggle("on", i === n) });
+  $$("#dots i").forEach(function(d,i){ d.classList.toggle("on", i <= n) });
+  window.scrollTo(0,0);
+}
+go(0);
+
+// "next" buttons on steps 0, 2, 3
+$$("[data-next]").forEach(function(b){ b.addEventListener("click", function(){ go(cur + 1) }) });
+
+// Step 1: how mad
+$$("[data-mad]").forEach(function(b){
+  b.addEventListener("click", function(){ $("#madReply").textContent = b.getAttribute("data-mad"); go(2) });
+});
+// the "No" button is a little shy
+var nope = $("#nope");
+nope.addEventListener("pointerenter", function(){
+  if (matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  nope.style.transform = "translate(" + (Math.random()*80-40) + "px," + (Math.random()*30-15) + "px) rotate(" + (Math.random()*20-10) + "deg)";
+});
+
+// Step 2: reveal cards
+var opened = 0;
+$$("[data-card]").forEach(function(c){
+  c.addEventListener("click", function(){
+    if (!c.classList.contains("open")){
+      c.classList.add("open"); opened++;
+      if (opened === 3) $("#to3").style.display = "inline-block";
+    }
+  });
+});
+
+// Step 3: promises
+var acc = 0, pBox = $("#promises");
+C.promises.forEach(function(t){
+  var b = document.createElement("button");
+  b.className = "promise";
+  b.innerHTML = '<span class="box">✓</span><span></span>';
+  b.lastChild.textContent = t;
+  b.addEventListener("click", function(){
+    if (b.classList.contains("done")) return;
+    b.classList.add("done"); acc++;
+    if (acc === C.promises.length) $("#to4").style.display = "inline-block";
+  });
+  pBox.appendChild(b);
+});
+
+// Step 4: the big question
+var tries = 0, yes = $("#yes"), no = $("#no");
+var lines = ["I mean it with my whole heart.", "Please?", "I’ll even do the dishes.", "The No button is getting nervous.", "There’s only one good answer here."];
+function dodge(e){
+  if (e && e.type === "pointerenter" && e.pointerType === "touch") return;
+  tries++;
+  yes.style.transform = "scale(" + Math.min(1 + tries*0.18, 2) + ")";
+  no.style.transform = "translate(" + (Math.random()*100-50) + "px," + (Math.random()*60-30) + "px) scale(" + Math.max(1 - tries*0.15, 0.3) + ")";
+  $("#askSub").textContent = lines[Math.min(tries, lines.length-1)];
+  if (tries >= 5){ no.style.opacity = 0; no.style.pointerEvents = "none"; }
+}
+no.addEventListener("pointerenter", dodge);
+no.addEventListener("click", dodge);
+
+yes.addEventListener("click", function(){
+  go(5);
+  if (matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  var em = ["💖","💕","💗","🌹","✨","💘"];
+  for (var i = 0; i < 40; i++){
+    var f = document.createElement("div");
+    f.className = "fx"; f.textContent = em[i % em.length];
+    f.style.left = Math.random()*100 + "vw";
+    f.style.animationDuration = (2.5 + Math.random()*2.5) + "s";
+    f.style.animationDelay = (Math.random()*1.2) + "s";
+    f.style.fontSize = (20 + Math.random()*22) + "px";
+    document.body.appendChild(f);
+    setTimeout((function(el){ return function(){ el.remove() } })(f), 7000);
+  }
+});
+</script>
+</body>
+</html>
